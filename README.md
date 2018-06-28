@@ -1,8 +1,6 @@
 # Surface Book 2 / Surface Pro (2017) Power and Volume Button Driver
 
-_Note: I have not tested this on the Surface Pro (2017)._
-_According to the DSDT, it should work._
-_Test at your own risk, feedback is appreciated._
+_Note: This is now integrated into the latest releae of [Jake Day's linux-surface kernel](https://github.com/jakeday/linux-surface), so there is no need to separately install this module._
 
 ## Installing/Testing
 
