@@ -11,6 +11,10 @@ For the DKMS system you might need some additional packages, however it's also m
 
 _Note: See [issues](#issues) before trying to load the module, as you may need to unload another module first._
 
+### On Arch Linux
+
+Build and install the package via the provided PKGBUILD, i.e. run `makepkg` inside this folder and then `pacman -U *.tar.xz`.
+
 ### Via DKMS (Recommended)
 
 Just run `make dkms-install` as root inside this folder.
