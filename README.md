@@ -1,6 +1,6 @@
 # Surface Book 2 / Surface Pro (2017) Power and Volume Button Driver
 
-_Note: This is now integrated into the latest releae of [Jake Day's linux-surface kernel](https://github.com/jakeday/linux-surface), so there is no need to separately install this module._
+_Note: This is now integrated into the latest releae of [Jake Day's linux-surface kernel][linux-surface], so there is no need to separately install this module._
 
 ## Installing/Testing
 
@@ -31,4 +31,8 @@ The `MSHW0040` is claimed by both, the `sb2_button` and `surfacepro3_button` dri
 While the former now only loads on the Surface Book 2 and Surface Pro (2017), the latter loads on all devices.
 Thus may need to unload and/or blacklist the `surfacepro3_button` module before loading this one.
 
+This issue should be resolved with the latest [linux-surface kernel][linux-surface].
+
 _TLDR: You might need to unload the `surfacepro3_button` module, i.e. run `sudo modprobe -r surfacepro3_button` before loading this module._
+
+[linux-surface]: https://github.com/jakeday/linux-surface
