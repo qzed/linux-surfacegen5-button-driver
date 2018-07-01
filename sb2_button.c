@@ -204,11 +204,6 @@ static int soc_button_probe(struct platform_device *pdev)
 	return 0;
 }
 
-/*
- * Definition of buttons on the tablet. The ACPI index of each button
- * is defined in section 2.8.7.2 of "Windows ACPI Design Guide for SoC
- * Platforms"
- */
 static struct soc_button_info soc_button_MSHW0040[] = {
 	{ "power",       0, EV_KEY, KEY_POWER,      false, true  },
 	{ "volume_up",   2, EV_KEY, KEY_VOLUMEUP,   true,  false },
