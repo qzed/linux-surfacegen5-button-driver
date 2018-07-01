@@ -27,11 +27,8 @@ This can be loaded via `insmod sb2_button.ko` or installed just like any other m
 
 ## Issues
 
-The `MSHW0040` is claimed by the `surfacepro3_button` driver.
-While this is correct for the Surface Pro 4 (covered by this driver), the ACPI/DSDT code differs between the Surface Pro 4 and the Surface Book 2/Surface Pro (2017).
-Thus the existing driver does not work and you may need to unload and/or blacklist its module before loading this one.
-
-In reverse, I have also no idea on how this driver should detect the difference between `MSHW0040` on the Surface Book 2/Surface Pro (2017) and the Surface Pro 4.
-If anyone has an idea, please open an issue or send a pull-request.
+The `MSHW0040` is claimed by both, the `sb2_button` and `surfacepro3_button` drivers.
+While the former now only loads on the Surface Book 2 and Surface Pro (2017), the latter loads on all devices.
+Thus may need to unload and/or blacklist the `surfacepro3_button` module before loading this one.
 
 _TLDR: You might need to unload the `surfacepro3_button` module, i.e. run `sudo modprobe -r surfacepro3_button` before loading this module._
