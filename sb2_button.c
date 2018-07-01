@@ -31,12 +31,18 @@ struct soc_button_info {
 	bool wakeup;
 };
 
+struct soc_device_data {
+	int (*check)(struct device *);
+	struct soc_button_info *button_info;
+};
+
 /*
  * Some of the buttons like volume up/down are auto repeat, while others
  * are not. To support both, we register two platform devices, and put
  * buttons into them based on whether the key should be auto repeat.
  */
-#define BUTTON_TYPES	2
+#define BUTTON_TYPES			2
+#define SURFACE_METHOD_DSM		"_DSM"
 
 struct soc_button_data {
 	struct platform_device *children[BUTTON_TYPES];
@@ -157,7 +163,8 @@ static int soc_button_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	const struct acpi_device_id *id;
-	struct soc_button_info *button_info;
+	struct soc_device_data *device_data;
+	struct soc_button_info *button_info = NULL;
 	struct soc_button_data *priv;
 	struct platform_device *pd;
 	int i;
@@ -167,7 +174,15 @@ static int soc_button_probe(struct platform_device *pdev)
 	if (!id)
 		return -ENODEV;
 
-	button_info = (struct soc_button_info *)id->driver_data;
+	device_data = (struct soc_device_data *)id->driver_data;
+	if (device_data) {
+		// device dependent check, required for MSHW0040
+		error = device_data->check(dev);
+		if (error < 0)
+			return error;
+
+		button_info = device_data->button_info;
+	}
 
 	error = gpiod_count(dev, NULL);
 	if (error < 0) {
@@ -204,6 +219,14 @@ static int soc_button_probe(struct platform_device *pdev)
 	return 0;
 }
 
+static int soc_device_check_MSHW0040(struct device *dev)
+{
+	if (!acpi_has_method(ACPI_HANDLE(dev), SURFACE_METHOD_DSM))
+		return -ENODEV;
+	
+	return 0;
+}
+
 static struct soc_button_info soc_button_MSHW0040[] = {
 	{ "power",       0, EV_KEY, KEY_POWER,      false, true  },
 	{ "volume_up",   2, EV_KEY, KEY_VOLUMEUP,   true,  false },
@@ -211,8 +234,13 @@ static struct soc_button_info soc_button_MSHW0040[] = {
 	{ }
 };
 
+static struct soc_device_data soc_device_MSHW0040 = {
+	.check = soc_device_check_MSHW0040,
+	.button_info = soc_button_MSHW0040,
+};
+
 static const struct acpi_device_id soc_button_acpi_match[] = {
-	{ "MSHW0040", (unsigned long)soc_button_MSHW0040 },
+	{ "MSHW0040", (unsigned long)&soc_device_MSHW0040 },
 	{ }
 };
 
