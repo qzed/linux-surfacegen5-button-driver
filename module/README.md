@@ -17,18 +17,18 @@ Build and install the package via the provided PKGBUILD, i.e. run `makepkg` insi
 ### Via DKMS (Recommended)
 
 Just run `make dkms-install` as root inside this folder.
-You can then load the module via `modprobe sb2_button`.
+You can then load the module via `modprobe surfacegen5_button`.
 It also should load automatically when you reboot.
 
 ### Manual
 
 Run `make all` inside this folder.
-You should then have the kernel module as `sb2_button.ko`.
-This can be loaded via `insmod sb2_button.ko` or installed just like any other module.
+You should then have the kernel module as `surfacegen5_button.ko`.
+This can be loaded via `insmod surfacegen5_button.ko` or installed just like any other module.
 
 ## Issues
 
-The `MSHW0040` is claimed by both, the `sb2_button` and `surfacepro3_button` drivers.
+The `MSHW0040` is claimed by both, the `surfacegen5_button` and `surfacepro3_button` drivers.
 While the former now only loads on the Surface Book 2 and Surface Pro (2017), the latter loads on all devices.
 Thus may need to unload and/or blacklist the `surfacepro3_button` module before loading this one.
 

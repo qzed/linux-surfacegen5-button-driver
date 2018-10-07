@@ -250,7 +250,7 @@ static struct platform_driver soc_button_driver_sb2 = {
 	.probe          = soc_button_probe,
 	.remove		= soc_button_remove,
 	.driver		= {
-		.name = "SurfaceBook2 Button",
+		.name = "SurfaceGen5 Button",
 		.acpi_match_table = ACPI_PTR(soc_button_acpi_match),
 	},
 };

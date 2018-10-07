@@ -1,9 +1,9 @@
-MODULE_NAME := "sb2_button"
+MODULE_NAME := "surfacegen5_button"
 MODULE_VERSION := "0.1"
 
 KVERSION := "$(shell uname -r)"
 
-obj-m += sb2_button.o
+obj-m += surfacegen5_button.o
 
 all:
 	make -C /lib/modules/$(KVERSION)/build M=$(PWD) modules
@@ -11,9 +11,9 @@ all:
 clean:
 	make -C /lib/modules/$(KVERSION)/build M=$(PWD) clean
 
-dkms-install: sb2_button.c dkms.conf Makefile
+dkms-install: surfacegen5_button.c dkms.conf Makefile
 	mkdir -p /usr/src/$(MODULE_NAME)-$(MODULE_VERSION)/
-	cp sb2_button.c /usr/src/$(MODULE_NAME)-$(MODULE_VERSION)/
+	cp surfacegen5_button.c /usr/src/$(MODULE_NAME)-$(MODULE_VERSION)/
 	cp dkms.conf /usr/src/$(MODULE_NAME)-$(MODULE_VERSION)/
 	cp Makefile /usr/src/$(MODULE_NAME)-$(MODULE_VERSION)/
 	dkms add $(MODULE_NAME)/$(MODULE_VERSION)

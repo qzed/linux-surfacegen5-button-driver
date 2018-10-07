@@ -15,8 +15,8 @@ sha256sums=('SKIP')
 package() {
     cd "${srcdir}/src"
 
-    install -d "${pkgdir}/usr/src/sb2_button-${pkgver}/"
-    cp -r "${srcdir}/src/"* "${pkgdir}/usr/src/sb2_button-${pkgver}/"
+    install -d "${pkgdir}/usr/src/surfacegen5_button-${pkgver}/"
+    cp -r "${srcdir}/src/"* "${pkgdir}/usr/src/surfacegen5_button-${pkgver}/"
 
-    install -Dm644 "${srcdir}/src/sb2_button.conf" "${pkgdir}/usr/lib/depmod.d/sb2_button.conf"
+    install -Dm644 "${srcdir}/src/surfacegen5_button.conf" "${pkgdir}/usr/lib/depmod.d/surfacegen5_button.conf"
 }
