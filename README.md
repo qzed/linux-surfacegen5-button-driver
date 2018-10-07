@@ -1,6 +1,6 @@
-# Surface Book 2 / Surface Pro (2017) Power and Volume Button Driver
+# Linux Power and Volume Button Driver for Surface Gen. 5 Devices
 
-Power and volume button support for Microsoft Surface Book 2 and Surface Pro (2017).
+Power and volume button support for Microsoft Surface Book 2, Surface Pro (2017), and Surface Laptop.
 
 _Note: this is already included in [Jake Day's kernel](https://github.com/jakeday/linux-surface)._
 
