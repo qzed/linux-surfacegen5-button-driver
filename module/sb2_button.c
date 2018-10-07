@@ -257,5 +257,5 @@ static struct platform_driver soc_button_driver_sb2 = {
 module_platform_driver(soc_button_driver_sb2);
 
 MODULE_AUTHOR("Maximilian Luz");
-MODULE_DESCRIPTION("Surface Book 2/Surface Pro (2017) Button Driver");
+MODULE_DESCRIPTION("Button Driver for 5th Genration Surface Devices");
 MODULE_LICENSE("GPL v2");
