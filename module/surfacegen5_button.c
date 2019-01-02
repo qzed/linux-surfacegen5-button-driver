@@ -42,7 +42,11 @@ struct soc_device_data {
  * buttons into them based on whether the key should be auto repeat.
  */
 #define BUTTON_TYPES			2
-#define SURFACE_METHOD_DSM		"_DSM"
+
+#define MSHW0040_DSM_REVISION		0x01
+#define MSHW0040_DSM_GET_OMPR		0x02	// get OEM Platform Revision
+static const guid_t MSHW0040_DSM_UUID =
+	GUID_INIT(0x6fd05c69, 0xcde3, 0x49f4, 0x95, 0xed, 0xab, 0x16, 0x65, 0x49, 0x80, 0x35);
 
 struct soc_button_data {
 	struct platform_device *children[BUTTON_TYPES];
@@ -221,10 +225,23 @@ static int soc_button_probe(struct platform_device *pdev)
 
 static int soc_device_check_MSHW0040(struct device *dev)
 {
-	if (!acpi_has_method(ACPI_HANDLE(dev), SURFACE_METHOD_DSM))
-		return -ENODEV;
-	
-	return 0;
+	acpi_handle handle = ACPI_HANDLE(dev);
+	union acpi_object *result;
+	u64 oem_platform_rev = 0;
+
+	// get OEM board revision
+	result = acpi_evaluate_dsm_typed(handle, &MSHW0040_DSM_UUID, MSHW0040_DSM_REVISION,
+	                                 MSHW0040_DSM_GET_OMPR, NULL, ACPI_TYPE_INTEGER);
+
+	if (result) {
+		oem_platform_rev = result->integer.value;
+		ACPI_FREE(result);
+	}
+
+	dev_info(dev, "OEM Platform Revision %llu\n", oem_platform_rev);
+
+	// OEM board revision needs to be 5th gen or later
+	return oem_platform_rev >= 0x05 ? 0 : -ENODEV;
 }
 
 static struct soc_button_info soc_button_MSHW0040[] = {
