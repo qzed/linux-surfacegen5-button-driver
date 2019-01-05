@@ -12,7 +12,7 @@ _Note: See [issues](#issues) before trying to load the module, as you may need t
 
 ### On Arch Linux
 
-Build and install the package via the provided PKGBUILD, i.e. run `makepkg` inside this folder and then `pacman -U *.tar.xz`.
+Build and install the package via the provided PKGBUILD, i.e. simply run `makepkg -si` inside this folder.
 
 ### Via DKMS (Recommended)
 
