@@ -240,8 +240,7 @@ static int soc_device_check_MSHW0040(struct device *dev)
 
 	dev_info(dev, "OEM Platform Revision %llu\n", oem_platform_rev);
 
-	// OEM board revision needs to be 5th gen or later
-	return oem_platform_rev >= 0x05 ? 0 : -ENODEV;
+	return oem_platform_rev > 0 ? 0 : -ENODEV;
 }
 
 static struct soc_button_info soc_button_MSHW0040[] = {
