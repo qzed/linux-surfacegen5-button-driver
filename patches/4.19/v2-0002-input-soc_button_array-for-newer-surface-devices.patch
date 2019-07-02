@@ -1,10 +1,10 @@
-From 8ef81d6efc205db6df5796954633a64d532d11db Mon Sep 17 00:00:00 2001
+From 101936fc6e94faf71cbb18ee34e971f0530de3ea Mon Sep 17 00:00:00 2001
 From: Maximilian Luz <luzmaximilian@gmail.com>
-Date: Thu, 25 Apr 2019 13:40:34 +0200
-Subject: [PATCH 2/2] platform: Button-support for newer surface devices
+Date: Tue, 2 Jul 2019 02:29:53 +0200
+Subject: [PATCH v2 2/2] Input: soc_button_array - Add support for newer surface devices 
 
 Power and volume button support for 5th and 6th genration Microsoft
-Surface devices.
+Surface devices via soc_button_array.
 
 Note that these devices use the same MSHW0040 device as on the Surface
 Pro 4, however the implementation is different (GPIOs vs. ACPI
@@ -13,14 +13,14 @@ this driver on the correct devices.
 
 Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
 ---
- drivers/input/misc/soc_button_array.c | 134 +++++++++++++++++++++++---
- 1 file changed, 122 insertions(+), 12 deletions(-)
+ drivers/input/misc/soc_button_array.c | 145 +++++++++++++++++++++++---
+ 1 file changed, 133 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
-index bb458beecb43..dd67753bbf6e 100644
+index 5e59f8e57f8e..8bd6909f8d1f 100644
 --- a/drivers/input/misc/soc_button_array.c
 +++ b/drivers/input/misc/soc_button_array.c
-@@ -29,6 +29,17 @@ struct soc_button_info {
+@@ -25,6 +25,17 @@ struct soc_button_info {
  	bool wakeup;
  };
  
@@ -38,7 +38,7 @@ index bb458beecb43..dd67753bbf6e 100644
  /*
   * Some of the buttons like volume up/down are auto repeat, while others
   * are not. To support both, we register two platform devices, and put
-@@ -314,6 +325,7 @@ static int soc_button_probe(struct platform_device *pdev)
+@@ -310,6 +321,7 @@ static int soc_button_probe(struct platform_device *pdev)
  {
  	struct device *dev = &pdev->dev;
  	const struct acpi_device_id *id;
@@ -46,7 +46,7 @@ index bb458beecb43..dd67753bbf6e 100644
  	struct soc_button_info *button_info;
  	struct soc_button_data *priv;
  	struct platform_device *pd;
-@@ -324,18 +336,20 @@ static int soc_button_probe(struct platform_device *pdev)
+@@ -320,18 +332,20 @@ static int soc_button_probe(struct platform_device *pdev)
  	if (!id)
  		return -ENODEV;
  
@@ -76,7 +76,7 @@ index bb458beecb43..dd67753bbf6e 100644
  	}
  
  	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
-@@ -361,12 +375,32 @@ static int soc_button_probe(struct platform_device *pdev)
+@@ -357,12 +371,32 @@ static int soc_button_probe(struct platform_device *pdev)
  	if (!priv->children[0] && !priv->children[1])
  		return -ENODEV;
  
@@ -110,7 +110,7 @@ index bb458beecb43..dd67753bbf6e 100644
  /*
   * Definition of buttons on the tablet. The ACPI index of each button
   * is defined in section 2.8.7.2 of "Windows ACPI Design Guide for SoC
-@@ -381,9 +415,85 @@ static struct soc_button_info soc_button_PNP0C40[] = {
+@@ -377,9 +411,96 @@ static struct soc_button_info soc_button_PNP0C40[] = {
  	{ }
  };
  
@@ -133,6 +133,8 @@ index bb458beecb43..dd67753bbf6e 100644
 +static const guid_t MSHW0040_DSM_UUID =
 +	GUID_INIT(0x6fd05c69, 0xcde3, 0x49f4, 0x95, 0xed, 0xab, 0x16, 0x65,
 +		  0x49, 0x80, 0x35);
++
++#ifdef CONFIG_ACPI
 +
 +static int soc_device_check_MSHW0040(struct device *dev)
 +{
@@ -169,6 +171,15 @@ index bb458beecb43..dd67753bbf6e 100644
 +	return 0;
 +}
 +
++#else   /* CONFIG_ACPI */
++
++static int soc_device_check_MSHW0040(struct device *dev)
++{
++    return -ENODEV;
++}
++
++#endif  /* CONFIG_ACPI */
++
 +/*
 + * Button infos for Microsoft Surface Book 2 and Surface Pro (2017).
 + * Obtained from DSDT/testing.
@@ -199,5 +210,5 @@ index bb458beecb43..dd67753bbf6e 100644
  };
  
 -- 
-2.21.0
+2.22.0
 
