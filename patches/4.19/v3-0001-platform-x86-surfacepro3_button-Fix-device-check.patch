@@ -1,7 +1,7 @@
-From bfd72cd68405878258fe30e1e10dbe5b528fd543 Mon Sep 17 00:00:00 2001
+From db50d31e231813a2dc0944535f40853018be741f Mon Sep 17 00:00:00 2001
 From: Maximilian Luz <luzmaximilian@gmail.com>
-Date: Tue, 2 Jul 2019 01:43:33 +0200
-Subject: [PATCH v2 1/2] platform/x86: surfacepro3_button: Fix device check 
+Date: Sun, 7 Jul 2019 00:52:31 +0200
+Subject: [PATCH v3 1/2] platform/x86: surfacepro3_button: Fix device check
 
 Do not use the surfacepro3_button driver on newer Microsoft Surface
 models, only use it on the Surface Pro 3 and 4. Newer models (5th, 6th
@@ -17,10 +17,10 @@ Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
  1 file changed, 38 insertions(+)
 
 diff --git a/drivers/platform/x86/surfacepro3_button.c b/drivers/platform/x86/surfacepro3_button.c
-index 47c6d000465a..0e2c7dfafd9f 100644
+index 1b491690ce07..eaec30380b11 100644
 --- a/drivers/platform/x86/surfacepro3_button.c
 +++ b/drivers/platform/x86/surfacepro3_button.c
-@@ -20,6 +20,12 @@
+@@ -24,6 +24,12 @@
  #define SURFACE_BUTTON_OBJ_NAME		"VGBI"
  #define SURFACE_BUTTON_DEVICE_NAME	"Surface Pro 3/4 Buttons"
  
@@ -33,7 +33,7 @@ index 47c6d000465a..0e2c7dfafd9f 100644
  #define SURFACE_BUTTON_NOTIFY_TABLET_MODE	0xc8
  
  #define SURFACE_BUTTON_NOTIFY_PRESS_POWER	0xc6
-@@ -142,6 +148,34 @@ static int surface_button_resume(struct device *dev)
+@@ -146,6 +152,34 @@ static int surface_button_resume(struct device *dev)
  }
  #endif
  
@@ -68,7 +68,7 @@ index 47c6d000465a..0e2c7dfafd9f 100644
  static int surface_button_add(struct acpi_device *device)
  {
  	struct surface_button *button;
-@@ -154,6 +188,10 @@ static int surface_button_add(struct acpi_device *device)
+@@ -158,6 +192,10 @@ static int surface_button_add(struct acpi_device *device)
  	    strlen(SURFACE_BUTTON_OBJ_NAME)))
  		return -ENODEV;
  
