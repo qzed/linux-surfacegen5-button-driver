@@ -1,10 +1,10 @@
-From b90baf6d9dd8ef1d8bd0eb4fc8e4a68a49dc44fd Mon Sep 17 00:00:00 2001
+From 163ec7454c1468172d354676b1ef4068ae13bd7d Mon Sep 17 00:00:00 2001
 From: Maximilian Luz <luzmaximilian@gmail.com>
-Date: Sun, 7 Jul 2019 00:53:18 +0200
+Date: Sat, 20 Jul 2019 14:03:50 +0200
 Subject: [PATCH v3 2/2] Input: soc_button_array - Add support for newer
  surface devices
 
-Power and volume button support for 5th and 6th genration Microsoft
+Power and volume button support for 5th and 6th generation Microsoft
 Surface devices via soc_button_array.
 
 Note that these devices use the same MSHW0040 device as on the Surface
@@ -14,14 +14,28 @@ this driver on the correct devices.
 
 Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
 ---
- drivers/input/misc/soc_button_array.c | 151 +++++++++++++++++++++++---
- 1 file changed, 138 insertions(+), 13 deletions(-)
+ drivers/input/misc/Kconfig            |   2 +-
+ drivers/input/misc/soc_button_array.c | 141 +++++++++++++++++++++++---
+ 2 files changed, 129 insertions(+), 14 deletions(-)
 
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index d07c1eb15aa6..1c9754986f13 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -813,7 +813,7 @@ config INPUT_IDEAPAD_SLIDEBAR
+ 
+ config INPUT_SOC_BUTTON_ARRAY
+ 	tristate "Windows-compatible SoC Button Array"
+-	depends on KEYBOARD_GPIO
++	depends on KEYBOARD_GPIO && ACPI
+ 	help
+ 	  Say Y here if you have a SoC-based tablet that originally
+ 	  runs Windows 8.
 diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
-index bb458beecb43..0cd942781bac 100644
+index 5e59f8e57f8e..5903fe11f87c 100644
 --- a/drivers/input/misc/soc_button_array.c
 +++ b/drivers/input/misc/soc_button_array.c
-@@ -29,6 +29,17 @@ struct soc_button_info {
+@@ -25,6 +25,17 @@ struct soc_button_info {
  	bool wakeup;
  };
  
@@ -39,21 +53,22 @@ index bb458beecb43..0cd942781bac 100644
  /*
   * Some of the buttons like volume up/down are auto repeat, while others
   * are not. To support both, we register two platform devices, and put
-@@ -91,8 +102,12 @@ soc_button_device_create(struct platform_device *pdev,
+@@ -87,8 +98,13 @@ soc_button_device_create(struct platform_device *pdev,
  			continue;
  
  		gpio = soc_button_lookup_gpio(&pdev->dev, info->acpi_index);
 -		if (!gpio_is_valid(gpio))
-+		if (gpio == -EPROBE_DEFER) {
-+			error = -EPROBE_DEFER;
++		if (gpio < 0 && gpio != -ENOENT) {
++			error = gpio;
 +			goto err_free_mem;
-+		} else if (!gpio_is_valid(gpio)) {
++		} else if (!is_valid_gpio(gpio)) {
++			/* Skip GPIO if not present */
  			continue;
 +		}
  
  		gpio_keys[n_buttons].type = info->event_type;
  		gpio_keys[n_buttons].code = info->event_code;
-@@ -314,6 +329,7 @@ static int soc_button_probe(struct platform_device *pdev)
+@@ -310,6 +326,7 @@ static int soc_button_probe(struct platform_device *pdev)
  {
  	struct device *dev = &pdev->dev;
  	const struct acpi_device_id *id;
@@ -61,7 +76,7 @@ index bb458beecb43..0cd942781bac 100644
  	struct soc_button_info *button_info;
  	struct soc_button_data *priv;
  	struct platform_device *pd;
-@@ -324,18 +340,20 @@ static int soc_button_probe(struct platform_device *pdev)
+@@ -320,18 +337,20 @@ static int soc_button_probe(struct platform_device *pdev)
  	if (!id)
  		return -ENODEV;
  
@@ -91,7 +106,7 @@ index bb458beecb43..0cd942781bac 100644
  	}
  
  	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
-@@ -361,12 +379,32 @@ static int soc_button_probe(struct platform_device *pdev)
+@@ -357,12 +376,32 @@ static int soc_button_probe(struct platform_device *pdev)
  	if (!priv->children[0] && !priv->children[1])
  		return -ENODEV;
  
@@ -125,7 +140,7 @@ index bb458beecb43..0cd942781bac 100644
  /*
   * Definition of buttons on the tablet. The ACPI index of each button
   * is defined in section 2.8.7.2 of "Windows ACPI Design Guide for SoC
-@@ -381,9 +419,96 @@ static struct soc_button_info soc_button_PNP0C40[] = {
+@@ -377,9 +416,85 @@ static struct soc_button_info soc_button_PNP0C40[] = {
  	{ }
  };
  
@@ -149,13 +164,11 @@ index bb458beecb43..0cd942781bac 100644
 +	GUID_INIT(0x6fd05c69, 0xcde3, 0x49f4, 0x95, 0xed, 0xab, 0x16, 0x65,
 +		  0x49, 0x80, 0x35);
 +
-+#ifdef CONFIG_ACPI
-+
 +static int soc_device_check_MSHW0040(struct device *dev)
 +{
 +	acpi_handle handle = ACPI_HANDLE(dev);
 +	union acpi_object *result;
-+	u64 oem_platform_rev = 0;
++	u64 oem_platform_rev = 0;	// valid revisions are nonzero
 +	int gpios;
 +
 +	// get OEM platform revision
@@ -169,31 +182,22 @@ index bb458beecb43..0cd942781bac 100644
 +		ACPI_FREE(result);
 +	}
 +
++	/*
++	 * If the revision is zero here, the _DSM evaluation has failed. This
++	 * indicates that we have a Pro 4 or Book 1 and this driver should not
++	 * be used.
++	 */
 +	if (oem_platform_rev == 0)
 +		return -ENODEV;
 +
 +	dev_dbg(dev, "OEM Platform Revision %llu\n", oem_platform_rev);
 +
-+	/*
-+	 * We are _really_ expecting GPIOs here. If we do not get any, this
-+	 * means the GPIO driver has not been loaded yet (which can happen).
-+	 * Try again later.
-+	 */
 +	gpios = gpiod_count(dev, NULL);
 +	if (gpios < 0)
-+		return -EPROBE_DEFER;
++		return -ENODEV;
 +
 +	return 0;
 +}
-+
-+#else   /* CONFIG_ACPI */
-+
-+static int soc_device_check_MSHW0040(struct device *dev)
-+{
-+    return -ENODEV;
-+}
-+
-+#endif  /* CONFIG_ACPI */
 +
 +/*
 + * Button infos for Microsoft Surface Book 2 and Surface Pro (2017).

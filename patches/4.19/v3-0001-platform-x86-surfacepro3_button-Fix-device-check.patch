@@ -1,26 +1,26 @@
-From db50d31e231813a2dc0944535f40853018be741f Mon Sep 17 00:00:00 2001
+From 6df18f34babfa1afaddb923b6fbe9a8e05e191e4 Mon Sep 17 00:00:00 2001
 From: Maximilian Luz <luzmaximilian@gmail.com>
-Date: Sun, 7 Jul 2019 00:52:31 +0200
+Date: Sat, 20 Jul 2019 00:48:26 +0200
 Subject: [PATCH v3 1/2] platform/x86: surfacepro3_button: Fix device check
 
 Do not use the surfacepro3_button driver on newer Microsoft Surface
 models, only use it on the Surface Pro 3 and 4. Newer models (5th, 6th
 and possibly future generations) use the same device as the Surface Pro
 4 to represent their volume and power buttons (MSHW0040), but their
-acutal implementation is significantly different. This patch ensures
+actual implementation is significantly different. This patch ensures
 that the surfacepro3_button driver is only used on the Pro 3 and 4
 models, allowing a different driver to bind on other models.
 
 Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
 ---
- drivers/platform/x86/surfacepro3_button.c | 38 +++++++++++++++++++++++
- 1 file changed, 38 insertions(+)
+ drivers/platform/x86/surfacepro3_button.c | 47 +++++++++++++++++++++++
+ 1 file changed, 47 insertions(+)
 
 diff --git a/drivers/platform/x86/surfacepro3_button.c b/drivers/platform/x86/surfacepro3_button.c
-index 1b491690ce07..eaec30380b11 100644
+index 47c6d000465a..66749d6e97a5 100644
 --- a/drivers/platform/x86/surfacepro3_button.c
 +++ b/drivers/platform/x86/surfacepro3_button.c
-@@ -24,6 +24,12 @@
+@@ -20,6 +20,12 @@
  #define SURFACE_BUTTON_OBJ_NAME		"VGBI"
  #define SURFACE_BUTTON_DEVICE_NAME	"Surface Pro 3/4 Buttons"
  
@@ -33,7 +33,7 @@ index 1b491690ce07..eaec30380b11 100644
  #define SURFACE_BUTTON_NOTIFY_TABLET_MODE	0xc8
  
  #define SURFACE_BUTTON_NOTIFY_PRESS_POWER	0xc6
-@@ -146,6 +152,34 @@ static int surface_button_resume(struct device *dev)
+@@ -142,6 +148,44 @@ static int surface_button_resume(struct device *dev)
  }
  #endif
  
@@ -41,18 +41,28 @@ index 1b491690ce07..eaec30380b11 100644
 + * Surface Pro 4 and Surface Book 2 / Surface Pro 2017 use the same device
 + * ID (MSHW0040) for the power/volume buttons. Make sure this is the right
 + * device by checking for the _DSM method and OEM Platform Revision.
++ *
++ * Returns true if the driver should bind to this device, i.e. the device is
++ * either MSWH0028 (Pro 3) or MSHW0040 on a Pro 4 or Book 1.
 + */
-+static int surface_button_check_MSHW0040(struct acpi_device *dev)
++static bool surface_button_check_MSHW0040(struct acpi_device *dev)
 +{
 +	acpi_handle handle = dev->handle;
 +	union acpi_object *result;
-+	u64 oem_platform_rev = 0;
++	u64 oem_platform_rev = 0;	// valid revisions are nonzero
 +
 +	// get OEM platform revision
 +	result = acpi_evaluate_dsm_typed(handle, &MSHW0040_DSM_UUID,
 +					 MSHW0040_DSM_REVISION,
 +					 MSHW0040_DSM_GET_OMPR,
 +					 NULL, ACPI_TYPE_INTEGER);
++
++	/*
++  	 * If evaluating the _DSM fails, the method is not present. This means
++	 * that we have either MSHW0028 or MSHW0040 on Pro 4 or Book 1, so we
++	 * should use this driver. We use revision 0 indicating it is
++	 * unavailable.
++	 */
 +
 +	if (result) {
 +		oem_platform_rev = result->integer.value;
@@ -61,20 +71,19 @@ index 1b491690ce07..eaec30380b11 100644
 +
 +	dev_dbg(&dev->dev, "OEM Platform Revision %llu\n", oem_platform_rev);
 +
-+	return oem_platform_rev == 0 ? 0 : -ENODEV;
++	return oem_platform_rev == 0;
 +}
 +
 +
  static int surface_button_add(struct acpi_device *device)
  {
  	struct surface_button *button;
-@@ -158,6 +192,10 @@ static int surface_button_add(struct acpi_device *device)
+@@ -154,6 +198,9 @@ static int surface_button_add(struct acpi_device *device)
  	    strlen(SURFACE_BUTTON_OBJ_NAME)))
  		return -ENODEV;
  
-+	error = surface_button_check_MSHW0040(device);
-+	if (error)
-+		return error;
++	if (!surface_button_check_MSHW0040(device))
++		return -ENODEV;
 +
  	button = kzalloc(sizeof(struct surface_button), GFP_KERNEL);
  	if (!button)
