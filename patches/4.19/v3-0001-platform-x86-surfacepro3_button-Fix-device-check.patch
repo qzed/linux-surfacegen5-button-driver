@@ -58,7 +58,7 @@ index 47c6d000465a..66749d6e97a5 100644
 +					 NULL, ACPI_TYPE_INTEGER);
 +
 +	/*
-+  	 * If evaluating the _DSM fails, the method is not present. This means
++	 * If evaluating the _DSM fails, the method is not present. This means
 +	 * that we have either MSHW0028 or MSHW0040 on Pro 4 or Book 1, so we
 +	 * should use this driver. We use revision 0 indicating it is
 +	 * unavailable.
