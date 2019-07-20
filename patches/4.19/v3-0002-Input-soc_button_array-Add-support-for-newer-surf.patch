@@ -1,6 +1,6 @@
-From 163ec7454c1468172d354676b1ef4068ae13bd7d Mon Sep 17 00:00:00 2001
+From 4c351027e20f8ce25f4fadee4bc5732736800dbe Mon Sep 17 00:00:00 2001
 From: Maximilian Luz <luzmaximilian@gmail.com>
-Date: Sat, 20 Jul 2019 14:03:50 +0200
+Date: Sat, 20 Jul 2019 16:05:52 +0200
 Subject: [PATCH v3 2/2] Input: soc_button_array - Add support for newer
  surface devices
 
@@ -14,25 +14,30 @@ this driver on the correct devices.
 
 Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
 ---
- drivers/input/misc/Kconfig            |   2 +-
+ drivers/input/misc/Kconfig            |   6 +-
  drivers/input/misc/soc_button_array.c | 141 +++++++++++++++++++++++---
- 2 files changed, 129 insertions(+), 14 deletions(-)
+ 2 files changed, 131 insertions(+), 16 deletions(-)
 
 diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index d07c1eb15aa6..1c9754986f13 100644
+index d07c1eb15aa6..7d9ae394e597 100644
 --- a/drivers/input/misc/Kconfig
 +++ b/drivers/input/misc/Kconfig
-@@ -813,7 +813,7 @@ config INPUT_IDEAPAD_SLIDEBAR
+@@ -813,10 +813,10 @@ config INPUT_IDEAPAD_SLIDEBAR
  
  config INPUT_SOC_BUTTON_ARRAY
  	tristate "Windows-compatible SoC Button Array"
 -	depends on KEYBOARD_GPIO
 +	depends on KEYBOARD_GPIO && ACPI
  	help
- 	  Say Y here if you have a SoC-based tablet that originally
- 	  runs Windows 8.
+-	  Say Y here if you have a SoC-based tablet that originally
+-	  runs Windows 8.
++	  Say Y here if you have a SoC-based tablet that originally runs
++	  Windows 8 or a Microsoft Surface Book 2, Pro 5, Laptop 1 or later.
+ 
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called soc_button_array.
 diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
-index 5e59f8e57f8e..5903fe11f87c 100644
+index 5e59f8e57f8e..4d5150bebeef 100644
 --- a/drivers/input/misc/soc_button_array.c
 +++ b/drivers/input/misc/soc_button_array.c
 @@ -25,6 +25,17 @@ struct soc_button_info {
