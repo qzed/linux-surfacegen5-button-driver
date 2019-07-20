@@ -61,7 +61,7 @@ index 5e59f8e57f8e..5903fe11f87c 100644
 +		if (gpio < 0 && gpio != -ENOENT) {
 +			error = gpio;
 +			goto err_free_mem;
-+		} else if (!is_valid_gpio(gpio)) {
++		} else if (!gpio_is_valid(gpio)) {
 +			/* Skip GPIO if not present */
  			continue;
 +		}
