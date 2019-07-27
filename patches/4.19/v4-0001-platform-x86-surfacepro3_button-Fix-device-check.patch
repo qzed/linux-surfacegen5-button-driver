@@ -1,7 +1,7 @@
-From 09e08f2fde753cbf3a9e4d6d6eaf8a8899a89e42 Mon Sep 17 00:00:00 2001
+From f182315773f833cc6fea384e1876d5e41acce18c Mon Sep 17 00:00:00 2001
 From: Maximilian Luz <luzmaximilian@gmail.com>
-Date: Sat, 20 Jul 2019 16:05:05 +0200
-Subject: [PATCH v3 1/2] platform/x86: surfacepro3_button: Fix device check
+Date: Sat, 27 Jul 2019 17:51:37 +0200
+Subject: [PATCH v4 1/2] platform/x86: surfacepro3_button: Fix device check
 
 Do not use the surfacepro3_button driver on newer Microsoft Surface
 models, only use it on the Surface Pro 3 and 4. Newer models (5th, 6th
