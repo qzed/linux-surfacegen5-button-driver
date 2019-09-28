@@ -2,8 +2,8 @@
 
 Power and volume button support for Microsoft Surface Book 2, Surface Pro (2017), and Surface Laptop.
 
-_Note: this is already included in [Jake Day's kernel](https://github.com/jakeday/linux-surface)._
+_Note: this is already included in the linux-surface patchset \[[1][1], [2][2]\] and will land in Linux 5.4._
 
-You may also want to have a look at [automatic re-mapping][autoremap] of the volume buttons based on device orientation.
+[1]: https://github.com/qzed/linux-surface
+[2]: https://github.com/jakeday/linux-surface
 
-[autoremap]: https://github.com/qzed/surfacebook2-linux-button-autoremap
